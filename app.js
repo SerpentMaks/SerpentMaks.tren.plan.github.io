@@ -1,241 +1,537 @@
-const STORAGE_KEY = "training-flow-v1";
+const STORAGE_KEY = "training-flow-v2";
 const DAY_NAMES = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
 
-const DEFAULT_WORKOUTS = {
-  1: {
-    title: "День 1 — Верх A",
-    subtitle: "Жим + горизонтальная тяга",
-    exercises: [
-      { id: "d1e1", name: "Отжимания на упорах с резиной", sets: 4, reps: "6-10", description: "Корпус прямой, локти под 30-45 градусов, опускайся плавно и без боли в локте." },
-      { id: "d1e2", name: "Австралийские подтягивания", sets: 4, reps: "8-12", description: "Сначала сведи лопатки, затем тянись грудью к перекладине." },
-      { id: "d1e3", name: "Жим резины над головой", sets: 3, reps: "8-12", description: "Пресс напряжен, поясницу не прогибай, руки выжимай вверх контролируемо." },
-      { id: "d1e4", name: "Тяга резины к поясу в наклоне", sets: 3, reps: "10-15", description: "Тяни локти назад к тазу, спина нейтральная, без раскачки." },
-      { id: "d1e5", name: "Разведение резины в стороны", sets: 3, reps: "12-20", description: "Легкий сгиб в локтях, поднимай до уровня плеч, не зажимай шею." },
-      { id: "d1e6", name: "Планка + боковая планка", sets: 3, reps: "40-60с + 30-40с/сторона", description: "Держи корпус жестким, таз не провисает, дыхание спокойное." }
-    ]
+const DEFAULT_STATE = {
+  settings: {
+    reminderTime: "19:00",
+    schedule: {
+      0: "rest",
+      1: "upperA",
+      2: "lowerA",
+      3: "rest",
+      4: "upperB",
+      5: "rest",
+      6: "lowerB"
+    }
   },
-  2: {
-    title: "День 2 — Низ A",
-    subtitle: "Квадрицепс + ягодицы + пресс",
-    exercises: [
-      { id: "d2e1", name: "Болгарские сплит-приседы", sets: 4, reps: "8-12/нога", description: "Шаг комфортный, опускайся вертикально вниз, колено по направлению носка." },
-      { id: "d2e2", name: "Присед с резиной (front style)", sets: 4, reps: "10-15", description: "Спина ровная, колени не заваливай внутрь, поднимайся через пятки." },
-      { id: "d2e3", name: "Румынская тяга с резиной", sets: 4, reps: "10-15", description: "Отводи таз назад, сохраняй нейтральную спину, чувствуя заднюю поверхность бедра." },
-      { id: "d2e4", name: "Ягодичный мост с резиной", sets: 3, reps: "12-20", description: "Верхняя точка с акцентом на ягодицы, не перегибай поясницу." },
-      { id: "d2e5", name: "Подъемы на носки стоя", sets: 4, reps: "15-25", description: "Полная амплитуда, пауза вверху 1 сек, опускайся медленно." },
-      { id: "d2e6", name: "Dead bug", sets: 3, reps: "10-12/сторона", description: "Поясницу держи прижатой к полу, работай медленно и симметрично." }
-    ]
+  workouts: {
+    upperA: {
+      title: "Верх A",
+      subtitle: "Жим + горизонтальная тяга",
+      exercises: [
+        {
+          id: "uA1",
+          name: "Отжимания на упорах с резиной",
+          sets: 4,
+          reps: "6-10",
+          description:
+            "Упрись руками в упоры, резину расположи за спиной. Держи корпус ровным, не проваливай таз, опускайся 2-3 секунды и поднимайся без рывка, не выпрямляя локти в жесткий замок."
+        },
+        {
+          id: "uA2",
+          name: "Австралийские подтягивания",
+          sets: 4,
+          reps: "8-12",
+          description:
+            "Ляг под низкий турник, держи тело прямым. Сначала сведи лопатки, затем подтяни грудь к перекладине. Внизу полностью контролируй опускание и не расслабляй корпус."
+        },
+        {
+          id: "uA3",
+          name: "Жим резины над головой",
+          sets: 3,
+          reps: "8-12",
+          description:
+            "Наступи на резину, ручки у плеч. Выжми вверх по дуге, держи пресс в напряжении и не выгибай поясницу. Опускай резину плавно и симметрично."
+        }
+      ]
+    },
+    lowerA: {
+      title: "Низ A",
+      subtitle: "Квадрицепс + ягодицы + пресс",
+      exercises: [
+        {
+          id: "lA1",
+          name: "Болгарские сплит-приседы",
+          sets: 4,
+          reps: "8-12/нога",
+          description:
+            "Заднюю ногу поставь на опору, передняя нога устойчиво на полу. Опускайся строго вниз, колено направляй по линии носка, поднимайся через пятку передней ноги."
+        },
+        {
+          id: "lA2",
+          name: "Присед с резиной (front style)",
+          sets: 4,
+          reps: "10-15",
+          description:
+            "Резину держи у плеч, корпус слегка наклонен вперед. Колени и носки смотрят в одну сторону, спина нейтральна, в нижней точке не теряй контроль."
+        },
+        {
+          id: "lA3",
+          name: "Румынская тяга с резиной",
+          sets: 4,
+          reps: "10-15",
+          description:
+            "Отводи таз назад, а не вниз, сохраняй спину прямой. В нижней точке чувствуй растяжение задней поверхности бедра и возвращайся за счет ягодиц."
+        }
+      ]
+    },
+    upperB: {
+      title: "Верх B",
+      subtitle: "Тяга + осанка + руки",
+      exercises: [
+        {
+          id: "uB1",
+          name: "Подтягивания / негативы",
+          sets: 5,
+          reps: "4-8",
+          description:
+            "Начинай с включения лопаток, тянись грудью вверх без рывка, спускайся медленно 3-5 секунд. Если тяжело - используй резину и не раскачивай корпус."
+        },
+        {
+          id: "uB2",
+          name: "Отжимания на упорах узким/средним",
+          sets: 4,
+          reps: "8-15",
+          description:
+            "Локти держи ближе к корпусу, грудь направляй между упоров. Контролируй плечи, не проваливайся внизу, движение должно быть равномерным."
+        },
+        {
+          id: "uB3",
+          name: "Face pull с резиной",
+          sets: 4,
+          reps: "12-20",
+          description:
+            "Тяни резину к верхней части лица, локти в стороны. В конечной точке своди лопатки и слегка разворачивай плечи наружу."
+        }
+      ]
+    },
+    lowerB: {
+      title: "Низ B",
+      subtitle: "Задняя цепь + стабильность спины",
+      exercises: [
+        {
+          id: "lB1",
+          name: "Выпады назад",
+          sets: 4,
+          reps: "10-14/нога",
+          description:
+            "Шаг назад делай достаточной длины, чтобы колено передней ноги оставалось стабильным. Поднимайся, сохраняя вертикальный корпус и опору на всю стопу."
+        },
+        {
+          id: "lB2",
+          name: "Good morning с резиной",
+          sets: 4,
+          reps: "10-15",
+          description:
+            "Резина под стопами и за плечами. Мягко сгибай колени, отводи таз назад и сохраняй длинную спину, затем возвращайся усилием ягодиц."
+        },
+        {
+          id: "lB3",
+          name: "Bird-dog",
+          sets: 3,
+          reps: "10/сторона",
+          description:
+            "На четвереньках вытягивай противоположные руку и ногу, не разворачивая таз. Задержись на 1-2 секунды и плавно вернись в исходное положение."
+        }
+      ]
+    }
   },
-  4: {
-    title: "День 3 — Верх B",
-    subtitle: "Тяга + осанка + руки",
-    exercises: [
-      { id: "d3e1", name: "Подтягивания / с резиной / негативы", sets: 5, reps: "4-8", description: "Без рывка, контролируй спуск 2-5 секунд, работай в комфортном хвате." },
-      { id: "d3e2", name: "Отжимания на упорах узким/средним", sets: 4, reps: "8-15", description: "Локти ближе к корпусу, корпус прямой, без резкой блокировки локтя." },
-      { id: "d3e3", name: "Face pull с резиной", sets: 4, reps: "12-20", description: "Тяни к уровню лица, в конце своди лопатки и раскрывай грудной отдел." },
-      { id: "d3e4", name: "Тяга резины одной рукой к тазу", sets: 3, reps: "10-15/сторона", description: "Стабилизируй корпус, тянущий локоть веди назад и вниз." },
-      { id: "d3e5", name: "Сгибания на бицепс с резиной", sets: 3, reps: "10-15", description: "Локти у корпуса, подъем без раскачки, опускание медленное." },
-      { id: "d3e6", name: "Разгибания на трицепс с резиной", sets: 3, reps: "12-15", description: "Локти фиксированы, двигай только предплечьями, избегай боли в локте." }
-    ]
-  },
-  6: {
-    title: "День 4 — Низ B",
-    subtitle: "Задняя цепь + стабильность спины",
-    exercises: [
-      { id: "d4e1", name: "Выпады назад", sets: 4, reps: "10-14/нога", description: "Шаг назад под контроль, корпус ровный, подъем через переднюю ногу." },
-      { id: "d4e2", name: "Good morning с резиной", sets: 4, reps: "10-15", description: "Отводи таз назад, сохраняй спину прямой, возвращайся силой ягодиц." },
-      { id: "d4e3", name: "Одноногая румынская тяга", sets: 3, reps: "8-12/нога", description: "Держи таз ровно, свободную ногу уводи назад, движение медленное." },
-      { id: "d4e4", name: "Ягодичный мост с паузой 2 сек", sets: 3, reps: "12-18", description: "В верхней точке пауза 2 секунды и плотное напряжение ягодиц." },
-      { id: "d4e5", name: "Подтягивание коленей к груди", sets: 3, reps: "12-20", description: "Делай плавно, без маха, держи пресс напряженным." },
-      { id: "d4e6", name: "Bird-dog", sets: 3, reps: "10/сторона", description: "На четвереньках вытягивай противоположные руку и ногу без вращения таза." }
-    ]
-  }
+  completion: {}
 };
 
-const state = loadState();
+let state = loadState();
+let activeWorkoutKey = Object.keys(state.workouts)[0] || "upperA";
 
 const refs = {
   todayLabel: document.getElementById("todayLabel"),
   todayWorkoutTitle: document.getElementById("todayWorkoutTitle"),
   todayWorkoutSubtitle: document.getElementById("todayWorkoutSubtitle"),
   todayExercises: document.getElementById("todayExercises"),
-  programDays: document.getElementById("programDays"),
   completeWorkoutBtn: document.getElementById("completeWorkoutBtn"),
+  resetTodayBtn: document.getElementById("resetTodayBtn"),
   reminderTime: document.getElementById("reminderTime"),
-  reminderDays: document.getElementById("reminderDays"),
-  notifyBtn: document.getElementById("notifyBtn"),
+  scheduleEditor: document.getElementById("scheduleEditor"),
   saveSettingsBtn: document.getElementById("saveSettingsBtn"),
+  notifyBtn: document.getElementById("notifyBtn"),
+  setsRepsEditor: document.getElementById("setsRepsEditor"),
+  workoutSelect: document.getElementById("workoutSelect"),
+  workoutEditor: document.getElementById("workoutEditor"),
+  addWorkoutBtn: document.getElementById("addWorkoutBtn"),
+  deleteWorkoutBtn: document.getElementById("deleteWorkoutBtn"),
+  addExerciseBtn: document.getElementById("addExerciseBtn"),
   exportBtn: document.getElementById("exportBtn"),
   importInput: document.getElementById("importInput"),
-  toast: document.getElementById("toast"),
   weeklyCount: document.getElementById("weeklyCount"),
   streakCount: document.getElementById("streakCount"),
   totalCount: document.getElementById("totalCount"),
-  progressChart: document.getElementById("progressChart")
+  todayDonut: document.getElementById("todayDonut"),
+  todayDonutLabel: document.getElementById("todayDonutLabel"),
+  weeklyBarChart: document.getElementById("weeklyBarChart"),
+  monthlyDonut: document.getElementById("monthlyDonut"),
+  heatmapGrid: document.getElementById("heatmapGrid"),
+  toast: document.getElementById("toast")
 };
 
 init();
 
 function init() {
   setupTabs();
-  renderReminderDays();
-  applySettingsToUi();
-  renderToday();
-  renderProgram();
-  renderProgress();
   wireEvents();
+  renderAll();
   startReminderWatcher();
   registerServiceWorker();
 }
 
 function loadState() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  if (saved) return JSON.parse(saved);
-  return {
-    settings: { reminderTime: "19:00", reminderDays: [1, 2, 4, 6] },
-    workouts: structuredClone(DEFAULT_WORKOUTS),
-    completion: {},
-    reminderMeta: {}
-  };
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return structuredClone(DEFAULT_STATE);
+  try {
+    const saved = JSON.parse(raw);
+    const merged = structuredClone(DEFAULT_STATE);
+    merged.settings = { ...merged.settings, ...(saved.settings || {}) };
+    merged.workouts = saved.workouts || merged.workouts;
+    merged.completion = saved.completion || {};
+    return merged;
+  } catch (_error) {
+    return structuredClone(DEFAULT_STATE);
+  }
 }
 
-function persistState() {
+function persist() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
-function isoDate(date = new Date()) {
-  return date.toISOString().split("T")[0];
+function getTodayKey() {
+  return new Date().toISOString().split("T")[0];
 }
 
-function getWorkoutForToday() {
-  return state.workouts[new Date().getDay()] || null;
+function getWorkoutKeyByDay(dayIndex) {
+  return state.settings.schedule[String(dayIndex)] || "rest";
+}
+
+function getTodayWorkout() {
+  const dayIndex = new Date().getDay();
+  const key = getWorkoutKeyByDay(dayIndex);
+  if (key === "rest") return { key: "rest", workout: null };
+  return { key, workout: state.workouts[key] || null };
+}
+
+function renderAll() {
+  refs.todayLabel.textContent = `${DAY_NAMES[new Date().getDay()]}, ${new Date().toLocaleDateString("ru-RU")}`;
+  refs.reminderTime.value = state.settings.reminderTime;
+  renderScheduleEditor();
+  renderToday();
+  renderSetsRepsEditor();
+  renderWorkoutSelect();
+  renderWorkoutEditor();
+  renderStatsAndCharts();
 }
 
 function renderToday() {
-  const now = new Date();
-  refs.todayLabel.textContent = `${DAY_NAMES[now.getDay()]}, ${now.toLocaleDateString("ru-RU")}`;
-  const workout = getWorkoutForToday();
+  const todayKey = getTodayKey();
+  const { key, workout } = getTodayWorkout();
   if (!workout) {
-    refs.todayWorkoutTitle.textContent = "Сегодня отдых";
-    refs.todayWorkoutSubtitle.textContent = "Легкая прогулка и восстановление";
+    refs.todayWorkoutTitle.textContent = "Сегодня день отдыха";
+    refs.todayWorkoutSubtitle.textContent = "В расписании на этот день выбрано восстановление.";
     refs.todayExercises.innerHTML = "";
     refs.completeWorkoutBtn.disabled = true;
+    drawDonut(refs.todayDonut, 0, "#4f8df8", "#1a294c");
+    refs.todayDonutLabel.textContent = "0%";
     return;
   }
-  refs.todayWorkoutTitle.textContent = workout.title;
+
+  refs.todayWorkoutTitle.textContent = `${workout.title}`;
   refs.todayWorkoutSubtitle.textContent = workout.subtitle;
   refs.completeWorkoutBtn.disabled = false;
-  const dayKey = isoDate();
-  const completed = state.completion[dayKey]?.exercises || {};
+
+  if (!state.completion[todayKey]) {
+    state.completion[todayKey] = { workoutKey: key, done: false, exercises: {} };
+  } else {
+    state.completion[todayKey].workoutKey = key;
+  }
+  const dayCompletion = state.completion[todayKey];
+
   refs.todayExercises.innerHTML = workout.exercises
     .map((ex) => {
-      const done = Boolean(completed[ex.id]);
-      return `<div class="exercise-item ${done ? "done" : ""}" data-exercise-id="${ex.id}">
-          <input class="exercise-check" type="checkbox" ${done ? "checked" : ""} />
-          <div>
-            <div class="exercise-top"><div class="exercise-title">${escapeHtml(ex.name)}</div></div>
-            <p class="exercise-desc">${escapeHtml(ex.description)}</p>
-            <div class="exercise-controls">
-              <label class="input-group">Подходы<input class="sets-input" type="number" min="1" max="15" value="${ex.sets}" /></label>
-              <label class="input-group">Повторы<input class="reps-input" type="text" value="${escapeHtml(ex.reps)}" /></label>
-            </div>
-          </div>
-        </div>`;
+      const checked = Boolean(dayCompletion.exercises[ex.id]);
+      return `<article class="exercise-item ${checked ? "done" : ""}" data-exercise-id="${ex.id}">
+        <input class="exercise-check" type="checkbox" ${checked ? "checked" : ""} />
+        <div>
+          <p class="exercise-title">${escapeHtml(ex.name)}</p>
+          <p class="exercise-desc">${escapeHtml(ex.description)}</p>
+          <p class="exercise-meta">${escapeHtml(`${ex.sets} подхода(ов) x ${ex.reps} повторов`)}</p>
+        </div>
+      </article>`;
     })
+    .join("");
+
+  const doneCount = workout.exercises.filter((ex) => dayCompletion.exercises[ex.id]).length;
+  const percent = workout.exercises.length ? Math.round((doneCount / workout.exercises.length) * 100) : 0;
+  refs.todayDonutLabel.textContent = `${percent}%`;
+  drawDonut(refs.todayDonut, percent, "#34d399", "#1a294c");
+}
+
+function renderScheduleEditor() {
+  const workoutOptions = Object.entries(state.workouts)
+    .map(([key, w]) => `<option value="${key}">${escapeHtml(w.title)}</option>`)
+    .join("");
+  refs.scheduleEditor.innerHTML = DAY_NAMES.map((day, idx) => {
+    const current = getWorkoutKeyByDay(idx);
+    return `<label class="schedule-row">
+      <span>${day}</span>
+      <select data-schedule-day="${idx}">
+        <option value="rest" ${current === "rest" ? "selected" : ""}>День отдыха</option>
+        ${workoutOptions.replace(`value="${current}"`, `value="${current}" selected`)}
+      </select>
+    </label>`;
+  }).join("");
+}
+
+function renderSetsRepsEditor() {
+  const cards = [];
+  for (const [key, workout] of Object.entries(state.workouts)) {
+    workout.exercises.forEach((ex) => {
+      cards.push(`<article class="editor-card" data-sets-reps-workout="${key}" data-sets-reps-ex="${ex.id}">
+        <p class="exercise-title">${escapeHtml(workout.title)}: ${escapeHtml(ex.name)}</p>
+        <div class="editor-grid">
+          <label>Подходы <input type="number" min="1" max="20" value="${ex.sets}" data-field="sets" /></label>
+          <label>Повторы <input type="text" value="${escapeHtml(ex.reps)}" data-field="reps" /></label>
+        </div>
+      </article>`);
+    });
+  }
+  refs.setsRepsEditor.innerHTML = cards.join("");
+}
+
+function renderWorkoutSelect() {
+  const entries = Object.entries(state.workouts);
+  if (!entries.length) {
+    refs.workoutSelect.innerHTML = "";
+    activeWorkoutKey = null;
+    return;
+  }
+  if (!state.workouts[activeWorkoutKey]) activeWorkoutKey = entries[0][0];
+  refs.workoutSelect.innerHTML = entries
+    .map(([key, workout]) => `<option value="${key}" ${key === activeWorkoutKey ? "selected" : ""}>${escapeHtml(workout.title)}</option>`)
     .join("");
 }
 
-function renderProgram() {
-  const sequence = [1, 2, 4, 6];
-  refs.programDays.innerHTML = sequence
-    .map((day) => {
-      const workout = state.workouts[day];
-      return `<article class="program-day">
-          <h3>${DAY_NAMES[day]}</h3>
-          <p class="muted">${escapeHtml(workout.title)}</p>
-          <ul>${workout.exercises.map((ex) => `<li>${escapeHtml(ex.name)} (${ex.sets}x${escapeHtml(ex.reps)})</li>`).join("")}</ul>
-        </article>`;
-    })
-    .join("");
+function renderWorkoutEditor() {
+  if (!activeWorkoutKey || !state.workouts[activeWorkoutKey]) {
+    refs.workoutEditor.innerHTML = "<p class='muted'>Нет тренировок. Создай новую.</p>";
+    return;
+  }
+  const workout = state.workouts[activeWorkoutKey];
+  refs.workoutEditor.innerHTML = `<article class="editor-card">
+      <p class="exercise-title">Общие поля тренировки</p>
+      <div class="editor-grid">
+        <label>Название <input type="text" data-workout-field="title" value="${escapeHtml(workout.title)}" /></label>
+        <label>Подзаголовок <input type="text" data-workout-field="subtitle" value="${escapeHtml(workout.subtitle || "")}" /></label>
+      </div>
+    </article>
+    ${workout.exercises
+      .map(
+        (ex) => `<article class="editor-card" data-editor-exercise-id="${ex.id}">
+        <div class="settings-row">
+          <p class="exercise-title">Упражнение</p>
+          <button class="danger-btn" data-action="delete-exercise" data-exercise-id="${ex.id}">Удалить</button>
+        </div>
+        <div class="editor-grid">
+          <label>Название <input type="text" data-ex-field="name" value="${escapeHtml(ex.name)}" data-exercise-id="${ex.id}" /></label>
+          <label>Подходы <input type="number" min="1" max="20" data-ex-field="sets" value="${ex.sets}" data-exercise-id="${ex.id}" /></label>
+          <label>Повторы <input type="text" data-ex-field="reps" value="${escapeHtml(ex.reps)}" data-exercise-id="${ex.id}" /></label>
+        </div>
+        <label>Подробное описание техники
+          <textarea data-ex-field="description" data-exercise-id="${ex.id}">${escapeHtml(ex.description)}</textarea>
+        </label>
+      </article>`
+      )
+      .join("")}`;
 }
 
-function renderReminderDays() {
-  refs.reminderDays.innerHTML = [1, 2, 3, 4, 5, 6, 0]
-    .map((day) => {
-      const short = DAY_NAMES[day].slice(0, 2);
-      const checked = state.settings.reminderDays.includes(day) ? "checked" : "";
-      return `<label class="day-chip"><input type="checkbox" data-reminder-day="${day}" ${checked} />${short}</label>`;
-    })
-    .join("");
-}
+function renderStatsAndCharts() {
+  const doneDates = Object.entries(state.completion)
+    .filter(([, v]) => v.done)
+    .map(([d]) => d)
+    .sort();
+  refs.totalCount.textContent = String(doneDates.length);
+  refs.weeklyCount.textContent = String(countLastDays(doneDates, 7));
+  refs.streakCount.textContent = String(calculateStreak(doneDates));
 
-function applySettingsToUi() {
-  refs.reminderTime.value = state.settings.reminderTime;
+  drawWeeklyBar(doneDates);
+  drawMonthlyDoneDonut(doneDates);
+  drawHeatmap(doneDates);
 }
 
 function wireEvents() {
-  refs.todayExercises.addEventListener("input", onTodayExerciseInput);
-  refs.todayExercises.addEventListener("change", onTodayExerciseInput);
-  refs.completeWorkoutBtn.addEventListener("click", () => {
-    const dateKey = isoDate();
-    if (!state.completion[dateKey]) state.completion[dateKey] = { exercises: {}, done: true };
-    else state.completion[dateKey].done = true;
-    persistState();
-    renderProgress();
-    toast("Тренировка отмечена как выполненная");
+  refs.todayExercises.addEventListener("change", (event) => {
+    const checkbox = event.target.closest(".exercise-check");
+    if (!checkbox) return;
+    const card = checkbox.closest(".exercise-item");
+    const exId = card?.dataset.exerciseId;
+    if (!exId) return;
+    const key = getTodayKey();
+    if (!state.completion[key]) state.completion[key] = { workoutKey: getTodayWorkout().key, done: false, exercises: {} };
+    state.completion[key].exercises[exId] = checkbox.checked;
+    card.classList.toggle("done", checkbox.checked);
+    syncTodayDoneStatus();
+    persist();
+    renderToday();
+    renderStatsAndCharts();
   });
+
+  refs.completeWorkoutBtn.addEventListener("click", () => {
+    const key = getTodayKey();
+    const { workout } = getTodayWorkout();
+    if (!workout) return;
+    if (!state.completion[key]) state.completion[key] = { workoutKey: getTodayWorkout().key, done: false, exercises: {} };
+    workout.exercises.forEach((ex) => {
+      state.completion[key].exercises[ex.id] = true;
+    });
+    state.completion[key].done = true;
+    persist();
+    renderAll();
+    toast("Отлично! Тренировка отмечена выполненной.");
+  });
+
+  refs.resetTodayBtn.addEventListener("click", () => {
+    const key = getTodayKey();
+    if (state.completion[key]) {
+      state.completion[key].exercises = {};
+      state.completion[key].done = false;
+      persist();
+      renderAll();
+      toast("Отметки за сегодня сброшены.");
+    }
+  });
+
   refs.notifyBtn.addEventListener("click", async () => {
     const permission = await Notification.requestPermission();
-    toast(permission === "granted" ? "Уведомления включены" : "Уведомления не разрешены");
+    toast(permission === "granted" ? "Уведомления включены." : "Уведомления не разрешены.");
   });
+
   refs.saveSettingsBtn.addEventListener("click", () => {
-    const selectedDays = Array.from(document.querySelectorAll("[data-reminder-day]:checked")).map((el) => Number(el.dataset.reminderDay));
-    state.settings.reminderDays = selectedDays;
     state.settings.reminderTime = refs.reminderTime.value || "19:00";
-    persistState();
-    toast("Настройки сохранены");
+    document.querySelectorAll("[data-schedule-day]").forEach((el) => {
+      state.settings.schedule[String(el.dataset.scheduleDay)] = el.value;
+    });
+    persist();
+    renderAll();
+    toast("Расписание и напоминания сохранены.");
   });
+
+  refs.setsRepsEditor.addEventListener("input", (event) => {
+    const field = event.target.dataset.field;
+    if (!field) return;
+    const card = event.target.closest("[data-sets-reps-workout]");
+    if (!card) return;
+    const workoutKey = card.dataset.setsRepsWorkout;
+    const exId = card.dataset.setsRepsEx;
+    const ex = state.workouts[workoutKey]?.exercises.find((item) => item.id === exId);
+    if (!ex) return;
+    if (field === "sets") ex.sets = Number(event.target.value || ex.sets);
+    if (field === "reps") ex.reps = event.target.value;
+    persist();
+    renderToday();
+    renderWorkoutEditor();
+  });
+
+  refs.workoutSelect.addEventListener("change", () => {
+    activeWorkoutKey = refs.workoutSelect.value;
+    renderWorkoutEditor();
+  });
+
+  refs.workoutEditor.addEventListener("input", (event) => {
+    const workout = state.workouts[activeWorkoutKey];
+    if (!workout) return;
+
+    const workoutField = event.target.dataset.workoutField;
+    if (workoutField) {
+      workout[workoutField] = event.target.value;
+      persist();
+      renderScheduleEditor();
+      renderWorkoutSelect();
+      renderToday();
+      return;
+    }
+
+    const exField = event.target.dataset.exField;
+    const exId = event.target.dataset.exerciseId;
+    if (!exField || !exId) return;
+    const ex = workout.exercises.find((item) => item.id === exId);
+    if (!ex) return;
+    if (exField === "sets") ex.sets = Number(event.target.value || ex.sets);
+    else ex[exField] = event.target.value;
+    persist();
+    renderSetsRepsEditor();
+    renderToday();
+  });
+
+  refs.workoutEditor.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-action='delete-exercise']");
+    if (!button) return;
+    const exId = button.dataset.exerciseId;
+    const workout = state.workouts[activeWorkoutKey];
+    workout.exercises = workout.exercises.filter((ex) => ex.id !== exId);
+    persist();
+    renderAll();
+    toast("Упражнение удалено.");
+  });
+
+  refs.addExerciseBtn.addEventListener("click", () => {
+    const workout = state.workouts[activeWorkoutKey];
+    if (!workout) return;
+    const id = `ex${Date.now()}`;
+    workout.exercises.push({
+      id,
+      name: "Новое упражнение",
+      sets: 3,
+      reps: "10-12",
+      description: "Опиши технику: исходное положение, амплитуда, темп и частые ошибки."
+    });
+    persist();
+    renderAll();
+    toast("Новое упражнение добавлено.");
+  });
+
+  refs.addWorkoutBtn.addEventListener("click", () => {
+    const key = `workout${Date.now()}`;
+    state.workouts[key] = {
+      title: "Новая тренировка",
+      subtitle: "Отредактируй под свою цель",
+      exercises: []
+    };
+    activeWorkoutKey = key;
+    persist();
+    renderAll();
+    toast("Новая тренировка создана.");
+  });
+
+  refs.deleteWorkoutBtn.addEventListener("click", () => {
+    if (!activeWorkoutKey || Object.keys(state.workouts).length <= 1) {
+      toast("Нельзя удалить последнюю тренировку.");
+      return;
+    }
+    delete state.workouts[activeWorkoutKey];
+    Object.keys(state.settings.schedule).forEach((day) => {
+      if (state.settings.schedule[day] === activeWorkoutKey) state.settings.schedule[day] = "rest";
+    });
+    activeWorkoutKey = Object.keys(state.workouts)[0];
+    persist();
+    renderAll();
+    toast("Тренировка удалена.");
+  });
+
   refs.exportBtn.addEventListener("click", exportData);
   refs.importInput.addEventListener("change", importData);
 }
 
-function onTodayExerciseInput(event) {
-  const item = event.target.closest(".exercise-item");
-  if (!item) return;
-  const exerciseId = item.dataset.exerciseId;
-  const workout = getWorkoutForToday();
-  if (!workout) return;
-  const exercise = workout.exercises.find((x) => x.id === exerciseId);
-  if (!exercise) return;
-  if (event.target.classList.contains("sets-input")) exercise.sets = Number(event.target.value || exercise.sets);
-  if (event.target.classList.contains("reps-input")) exercise.reps = event.target.value;
-  if (event.target.classList.contains("exercise-check")) {
-    const checked = event.target.checked;
-    const dateKey = isoDate();
-    if (!state.completion[dateKey]) state.completion[dateKey] = { exercises: {}, done: false };
-    state.completion[dateKey].exercises[exerciseId] = checked;
-    item.classList.toggle("done", checked);
-    if (allTodayExercisesDone()) state.completion[dateKey].done = true;
-  }
-  persistState();
-  renderProgram();
-  renderProgress();
-}
-
-function allTodayExercisesDone() {
-  const workout = getWorkoutForToday();
-  if (!workout) return false;
-  const day = state.completion[isoDate()];
-  if (!day) return false;
-  return workout.exercises.every((ex) => day.exercises[ex.id]);
-}
-
-function renderProgress() {
-  const doneDates = Object.entries(state.completion).filter(([, v]) => v.done).map(([d]) => d).sort();
-  refs.totalCount.textContent = String(doneDates.length);
-  refs.weeklyCount.textContent = String(countLastDays(doneDates, 7));
-  refs.streakCount.textContent = String(calculateStreak(doneDates));
-  drawChart(doneDates);
+function syncTodayDoneStatus() {
+  const key = getTodayKey();
+  const entry = state.completion[key];
+  const { workout } = getTodayWorkout();
+  if (!entry || !workout) return;
+  entry.done = workout.exercises.length > 0 && workout.exercises.every((ex) => entry.exercises[ex.id]);
 }
 
 function countLastDays(dates, days) {
@@ -255,43 +551,79 @@ function calculateStreak(dates) {
   return streak;
 }
 
-function drawChart(doneDates) {
-  const canvas = refs.progressChart;
+function drawDonut(canvas, percent, color, bg) {
   const ctx = canvas.getContext("2d");
-  const width = canvas.width;
-  const height = canvas.height;
-  ctx.clearRect(0, 0, width, height);
-  const weeks = getLastWeeks(8);
-  const values = weeks.map(({ start, end }) => doneDates.filter((date) => { const d = new Date(date); return d >= start && d <= end; }).length);
-  const maxVal = Math.max(4, ...values);
-  const padding = 26;
-  const chartHeight = height - padding * 2;
-  const chartWidth = width - padding * 2;
-  const barWidth = chartWidth / weeks.length - 14;
-  ctx.font = "12px sans-serif";
-  ctx.fillStyle = "#9fb0df";
-  ctx.strokeStyle = "rgba(255,255,255,0.1)";
+  const w = canvas.width;
+  const h = canvas.height;
+  const cx = w / 2;
+  const cy = h / 2;
+  const r = Math.min(w, h) / 2 - 16;
+  ctx.clearRect(0, 0, w, h);
+  ctx.lineWidth = 16;
+  ctx.strokeStyle = bg;
   ctx.beginPath();
-  ctx.moveTo(padding, height - padding);
-  ctx.lineTo(width - padding, height - padding);
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.stroke();
-  values.forEach((value, i) => {
-    const x = padding + i * (barWidth + 14);
-    const h = (value / maxVal) * (chartHeight - 22);
-    const y = height - padding - h;
-    ctx.fillStyle = "#4f8cf7";
-    ctx.fillRect(x, y, barWidth, h);
-    ctx.fillStyle = "#ecf0ff";
-    ctx.fillText(String(value), x + barWidth / 2 - 3, y - 6);
-    ctx.fillStyle = "#9fb0df";
-    ctx.fillText(`W${i + 1}`, x + barWidth / 2 - 8, height - 8);
+  ctx.strokeStyle = color;
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * percent) / 100);
+  ctx.stroke();
+}
+
+function drawWeeklyBar(doneDates) {
+  const canvas = refs.weeklyBarChart;
+  const ctx = canvas.getContext("2d");
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  const weeks = getLastWeeks(8);
+  const values = weeks.map(({ start, end }) => doneDates.filter((d) => new Date(d) >= start && new Date(d) <= end).length);
+  const max = Math.max(4, ...values);
+  const padding = 26;
+  const chartW = canvas.width - padding * 2;
+  const chartH = canvas.height - padding * 2;
+  const barW = chartW / values.length - 10;
+  ctx.fillStyle = "#7fb3ff";
+  ctx.font = "12px sans-serif";
+  values.forEach((v, i) => {
+    const x = padding + i * (barW + 10);
+    const h = ((chartH - 26) * v) / max;
+    const y = canvas.height - padding - h;
+    ctx.fillStyle = "#4f8df8";
+    ctx.fillRect(x, y, barW, h);
+    ctx.fillStyle = "#dbeafe";
+    ctx.fillText(String(v), x + barW / 2 - 3, y - 6);
   });
 }
 
+function drawMonthlyDoneDonut(doneDates) {
+  const last28 = [];
+  const now = new Date();
+  for (let i = 27; i >= 0; i -= 1) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - i);
+    last28.push(d.toISOString().split("T")[0]);
+  }
+  const done = last28.filter((d) => doneDates.includes(d)).length;
+  const percent = Math.round((done / 28) * 100);
+  drawDonut(refs.monthlyDonut, percent, "#5d9eff", "#1a294c");
+}
+
+function drawHeatmap(doneDates) {
+  const now = new Date();
+  const cells = [];
+  for (let i = 55; i >= 0; i -= 1) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - i);
+    const key = d.toISOString().split("T")[0];
+    cells.push(`<div class="heat-cell ${doneDates.includes(key) ? "heat-3" : "heat-0"}" title="${key}"></div>`);
+  }
+  refs.heatmapGrid.innerHTML = cells.join("");
+}
+
 function getLastWeeks(count) {
-  const end = new Date();
-  end.setHours(23, 59, 59, 999);
+  const now = new Date();
   const weeks = [];
+  const end = new Date(now);
+  end.setHours(23, 59, 59, 999);
   for (let i = count - 1; i >= 0; i -= 1) {
     const weekEnd = new Date(end);
     weekEnd.setDate(end.getDate() - i * 7);
@@ -308,14 +640,17 @@ function startReminderWatcher() {
     if (!("Notification" in window) || Notification.permission !== "granted") return;
     const now = new Date();
     const day = now.getDay();
+    const selected = getWorkoutKeyByDay(day);
+    if (selected === "rest") return;
     const hhmm = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-    const todayKey = isoDate(now);
-    if (!state.settings.reminderDays.includes(day) || hhmm !== state.settings.reminderTime) return;
-    if (state.reminderMeta[todayKey]) return;
-    state.reminderMeta[todayKey] = true;
-    persistState();
-    new Notification("Пора на тренировку", { body: "Открой Training Flow и отмечай упражнения по очереди.", icon: "./icon.svg" });
-    toast("Напоминание отправлено");
+    const key = getTodayKey();
+    if (hhmm !== state.settings.reminderTime) return;
+    if (state.completion[key]?.notificationSent) return;
+    if (!state.completion[key]) state.completion[key] = { workoutKey: selected, done: false, exercises: {} };
+    state.completion[key].notificationSent = true;
+    persist();
+    new Notification("Пора на тренировку", { body: `Сегодня по расписанию: ${state.workouts[selected]?.title || "тренировка"}`, icon: "./icon.svg" });
+    toast("Напоминание отправлено.");
   }, 30000);
 }
 
@@ -330,19 +665,13 @@ function setupTabs() {
   });
 }
 
-function toast(message) {
-  refs.toast.textContent = message;
-  refs.toast.classList.add("show");
-  setTimeout(() => refs.toast.classList.remove("show"), 2000);
-}
-
 function exportData() {
   const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "training-flow-backup.json";
-  a.click();
-  URL.revokeObjectURL(a.href);
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "training-flow-backup.json";
+  link.click();
+  URL.revokeObjectURL(link.href);
 }
 
 function importData(event) {
@@ -353,19 +682,22 @@ function importData(event) {
     try {
       const imported = JSON.parse(reader.result);
       if (!imported.settings || !imported.workouts || !imported.completion) throw new Error("invalid");
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(imported));
-      Object.assign(state, imported);
-      renderReminderDays();
-      applySettingsToUi();
-      renderToday();
-      renderProgram();
-      renderProgress();
-      toast("Данные импортированы");
+      state = imported;
+      activeWorkoutKey = Object.keys(state.workouts)[0] || null;
+      persist();
+      renderAll();
+      toast("Данные импортированы.");
     } catch (_error) {
-      toast("Ошибка импорта файла");
+      toast("Ошибка импорта JSON.");
     }
   };
   reader.readAsText(file);
+}
+
+function toast(message) {
+  refs.toast.textContent = message;
+  refs.toast.classList.add("show");
+  setTimeout(() => refs.toast.classList.remove("show"), 2000);
 }
 
 function escapeHtml(value) {

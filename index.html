@@ -22,70 +22,109 @@
 
       <nav class="tabs">
         <button class="tab-btn active" data-tab="today">Сегодня</button>
-        <button class="tab-btn" data-tab="program">Программа</button>
         <button class="tab-btn" data-tab="progress">Прогресс</button>
         <button class="tab-btn" data-tab="settings">Настройки</button>
       </nav>
 
       <main>
         <section class="tab-panel active" id="tab-today">
+          <div class="card hero-card">
+            <div class="hero-grid">
+              <div>
+                <h2>Сводка на сегодня</h2>
+                <p class="muted">Круг показывает процент выполнения сегодняшней тренировки</p>
+                <div class="stats stats-inline">
+                  <div class="stat">
+                    <p class="muted">За 7 дней</p>
+                    <p id="weeklyCount" class="stat-value">0</p>
+                  </div>
+                  <div class="stat">
+                    <p class="muted">Серия дней</p>
+                    <p id="streakCount" class="stat-value">0</p>
+                  </div>
+                  <div class="stat">
+                    <p class="muted">Всего</p>
+                    <p id="totalCount" class="stat-value">0</p>
+                  </div>
+                </div>
+              </div>
+              <div class="donut-wrap">
+                <canvas id="todayDonut" width="260" height="260"></canvas>
+                <p id="todayDonutLabel" class="donut-label">0%</p>
+              </div>
+            </div>
+          </div>
+
           <div class="card">
             <h2 id="todayWorkoutTitle"></h2>
             <p id="todayWorkoutSubtitle" class="muted"></p>
             <div id="todayExercises" class="exercise-list"></div>
-            <button id="completeWorkoutBtn" class="primary-btn">Отметить тренировку выполненной</button>
-          </div>
-        </section>
-
-        <section class="tab-panel" id="tab-program">
-          <div class="card">
-            <h2>План на неделю</h2>
-            <p class="muted">Пн / Вт / Чт / Сб — тренировки. Всегда можно изменить подходы и повторы.</p>
-            <div id="programDays" class="program-grid"></div>
+            <div class="settings-row">
+              <button id="completeWorkoutBtn" class="primary-btn">Отметить тренировку выполненной</button>
+              <button id="resetTodayBtn" class="secondary-btn">Сбросить отметки за сегодня</button>
+            </div>
           </div>
         </section>
 
         <section class="tab-panel" id="tab-progress">
           <div class="card">
-            <h2>График выполненных тренировок</h2>
-            <p class="muted">Показывает последние 8 недель</p>
-            <canvas id="progressChart" width="900" height="280"></canvas>
-            <div class="stats">
-              <div class="stat">
-                <p class="muted">За 7 дней</p>
-                <p id="weeklyCount" class="stat-value">0</p>
-              </div>
-              <div class="stat">
-                <p class="muted">Текущая серия</p>
-                <p id="streakCount" class="stat-value">0</p>
-              </div>
-              <div class="stat">
-                <p class="muted">Всего тренировок</p>
-                <p id="totalCount" class="stat-value">0</p>
-              </div>
+            <h2>Прогресс и графики</h2>
+            <p class="muted">Еженедельная динамика, соотношение выполнено/пропущено и календарь активности</p>
+            <div class="chart-grid">
+              <article class="chart-card">
+                <h3>Тренировки по неделям</h3>
+                <canvas id="weeklyBarChart" width="900" height="280"></canvas>
+              </article>
+              <article class="chart-card">
+                <h3>Выполнено / пропущено (28 дней)</h3>
+                <canvas id="monthlyDonut" width="320" height="320"></canvas>
+              </article>
+              <article class="chart-card chart-wide">
+                <h3>Календарь активности (8 недель)</h3>
+                <div id="heatmapGrid" class="heatmap-grid"></div>
+              </article>
             </div>
           </div>
         </section>
 
         <section class="tab-panel" id="tab-settings">
           <div class="card">
-            <h2>Напоминания и данные</h2>
+            <h2>Настройки и редактирование программы</h2>
+
+            <h3>1) Расписание по дням + напоминания</h3>
             <div class="settings-row">
               <label for="reminderTime">Время для всех дней сразу</label>
               <input type="time" id="reminderTime" />
             </div>
             <div class="settings-row">
-              <p>Дни напоминаний</p>
-              <div class="days-inline" id="reminderDays"></div>
+              <p>Выбери тренировку на каждый день недели</p>
+              <div id="scheduleEditor" class="schedule-editor"></div>
             </div>
             <div class="settings-row">
               <button id="saveSettingsBtn" class="primary-btn">Сохранить настройки</button>
               <button id="notifyBtn" class="secondary-btn">Разрешить уведомления</button>
             </div>
-            <p class="muted small">
-              На iPhone в веб-приложении уведомления работают после разрешения и добавления на экран «Домой».
-            </p>
-            <hr />
+            <p class="muted small">На iPhone уведомления работают после добавления сайта на экран «Домой».</p>
+
+            <hr class="separator" />
+            <h3>2) Подходы и повторы (отдельно)</h3>
+            <div id="setsRepsEditor" class="editor-block"></div>
+
+            <hr class="separator" />
+            <h3>3) Конструктор упражнений и тренировок</h3>
+            <div class="settings-row">
+              <label for="workoutSelect">Тренировка</label>
+              <select id="workoutSelect"></select>
+              <button id="addWorkoutBtn" class="secondary-btn">+ Новая тренировка</button>
+              <button id="deleteWorkoutBtn" class="danger-btn">Удалить тренировку</button>
+            </div>
+            <div id="workoutEditor" class="editor-block"></div>
+            <div class="settings-row">
+              <button id="addExerciseBtn" class="secondary-btn">+ Добавить упражнение</button>
+            </div>
+
+            <hr class="separator" />
+            <h3>4) Данные</h3>
             <div class="settings-row">
               <button id="exportBtn" class="secondary-btn">Экспортировать данные (JSON)</button>
               <label class="file-label">
@@ -99,7 +138,6 @@
     </div>
 
     <div id="toast" class="toast"></div>
-
     <script src="./app.js"></script>
   </body>
 </html>

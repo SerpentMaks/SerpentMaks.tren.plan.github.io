@@ -176,6 +176,7 @@ init();
 
 function init() {
   setupTabs();
+  setupSettingsTabs();
   wireEvents();
   renderAll();
   startReminderWatcher();
@@ -552,6 +553,7 @@ function calculateStreak(dates) {
 }
 
 function drawDonut(canvas, percent, color, bg) {
+  prepareCanvas(canvas, 260);
   const ctx = canvas.getContext("2d");
   const w = canvas.width;
   const h = canvas.height;
@@ -572,6 +574,7 @@ function drawDonut(canvas, percent, color, bg) {
 
 function drawWeeklyBar(doneDates) {
   const canvas = refs.weeklyBarChart;
+  prepareCanvas(canvas, 280);
   const ctx = canvas.getContext("2d");
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const weeks = getLastWeeks(8);
@@ -604,6 +607,7 @@ function drawMonthlyDoneDonut(doneDates) {
   }
   const done = last28.filter((d) => doneDates.includes(d)).length;
   const percent = Math.round((done / 28) * 100);
+  prepareCanvas(refs.monthlyDonut, 320);
   drawDonut(refs.monthlyDonut, percent, "#5d9eff", "#1a294c");
 }
 
@@ -663,6 +667,28 @@ function setupTabs() {
       document.getElementById(`tab-${btn.dataset.tab}`).classList.add("active");
     });
   });
+}
+
+function setupSettingsTabs() {
+  document.querySelectorAll(".settings-tab-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".settings-tab-btn").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll(".settings-panel").forEach((p) => p.classList.remove("active"));
+      btn.classList.add("active");
+      const panel = document.getElementById(`settings-panel-${btn.dataset.settingsTab}`);
+      if (panel) panel.classList.add("active");
+    });
+  });
+}
+
+function prepareCanvas(canvas, targetHeight) {
+  const ratio = window.devicePixelRatio || 1;
+  const cssWidth = Math.max(220, Math.floor(canvas.clientWidth || 320));
+  const cssHeight = targetHeight;
+  canvas.width = Math.floor(cssWidth * ratio);
+  canvas.height = Math.floor(cssHeight * ratio);
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 }
 
 function exportData() {

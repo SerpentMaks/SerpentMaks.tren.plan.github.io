@@ -28,6 +28,16 @@
 
       <main>
         <section class="tab-panel active" id="tab-today">
+          <div class="card">
+            <h2 id="todayWorkoutTitle"></h2>
+            <p id="todayWorkoutSubtitle" class="muted"></p>
+            <div id="todayExercises" class="exercise-list"></div>
+            <div class="settings-row">
+              <button id="completeWorkoutBtn" class="primary-btn">Отметить тренировку выполненной</button>
+              <button id="resetTodayBtn" class="secondary-btn">Сбросить отметки за сегодня</button>
+            </div>
+          </div>
+
           <div class="card hero-card">
             <div class="hero-grid">
               <div>
@@ -49,19 +59,9 @@
                 </div>
               </div>
               <div class="donut-wrap">
-                <canvas id="todayDonut" width="260" height="260"></canvas>
+                <canvas id="todayDonut"></canvas>
                 <p id="todayDonutLabel" class="donut-label">0%</p>
               </div>
-            </div>
-          </div>
-
-          <div class="card">
-            <h2 id="todayWorkoutTitle"></h2>
-            <p id="todayWorkoutSubtitle" class="muted"></p>
-            <div id="todayExercises" class="exercise-list"></div>
-            <div class="settings-row">
-              <button id="completeWorkoutBtn" class="primary-btn">Отметить тренировку выполненной</button>
-              <button id="resetTodayBtn" class="secondary-btn">Сбросить отметки за сегодня</button>
             </div>
           </div>
         </section>
@@ -73,11 +73,11 @@
             <div class="chart-grid">
               <article class="chart-card">
                 <h3>Тренировки по неделям</h3>
-                <canvas id="weeklyBarChart" width="900" height="280"></canvas>
+                <canvas id="weeklyBarChart"></canvas>
               </article>
               <article class="chart-card">
                 <h3>Выполнено / пропущено (28 дней)</h3>
-                <canvas id="monthlyDonut" width="320" height="320"></canvas>
+                <canvas id="monthlyDonut"></canvas>
               </article>
               <article class="chart-card chart-wide">
                 <h3>Календарь активности (8 недель)</h3>
@@ -90,47 +90,58 @@
         <section class="tab-panel" id="tab-settings">
           <div class="card">
             <h2>Настройки и редактирование программы</h2>
-
-            <h3>1) Расписание по дням + напоминания</h3>
-            <div class="settings-row">
-              <label for="reminderTime">Время для всех дней сразу</label>
-              <input type="time" id="reminderTime" />
-            </div>
-            <div class="settings-row">
-              <p>Выбери тренировку на каждый день недели</p>
-              <div id="scheduleEditor" class="schedule-editor"></div>
-            </div>
-            <div class="settings-row">
-              <button id="saveSettingsBtn" class="primary-btn">Сохранить настройки</button>
-              <button id="notifyBtn" class="secondary-btn">Разрешить уведомления</button>
-            </div>
-            <p class="muted small">На iPhone уведомления работают после добавления сайта на экран «Домой».</p>
-
-            <hr class="separator" />
-            <h3>2) Подходы и повторы (отдельно)</h3>
-            <div id="setsRepsEditor" class="editor-block"></div>
-
-            <hr class="separator" />
-            <h3>3) Конструктор упражнений и тренировок</h3>
-            <div class="settings-row">
-              <label for="workoutSelect">Тренировка</label>
-              <select id="workoutSelect"></select>
-              <button id="addWorkoutBtn" class="secondary-btn">+ Новая тренировка</button>
-              <button id="deleteWorkoutBtn" class="danger-btn">Удалить тренировку</button>
-            </div>
-            <div id="workoutEditor" class="editor-block"></div>
-            <div class="settings-row">
-              <button id="addExerciseBtn" class="secondary-btn">+ Добавить упражнение</button>
+            <div class="settings-tabs">
+              <button class="settings-tab-btn active" data-settings-tab="schedule">Расписание</button>
+              <button class="settings-tab-btn" data-settings-tab="setsreps">Подходы и повторы</button>
+              <button class="settings-tab-btn" data-settings-tab="editor">Конструктор упражнений</button>
+              <button class="settings-tab-btn" data-settings-tab="data">Данные</button>
             </div>
 
-            <hr class="separator" />
-            <h3>4) Данные</h3>
-            <div class="settings-row">
-              <button id="exportBtn" class="secondary-btn">Экспортировать данные (JSON)</button>
-              <label class="file-label">
-                Импорт JSON
-                <input type="file" id="importInput" accept=".json" />
-              </label>
+            <div class="settings-panel active" id="settings-panel-schedule">
+              <h3>Расписание по дням + напоминания</h3>
+              <div class="settings-row">
+                <label for="reminderTime">Время для всех дней сразу</label>
+                <input type="time" id="reminderTime" />
+              </div>
+              <div class="settings-row">
+                <p>Выбери тренировку на каждый день недели</p>
+                <div id="scheduleEditor" class="schedule-editor"></div>
+              </div>
+              <div class="settings-row">
+                <button id="saveSettingsBtn" class="primary-btn">Сохранить настройки</button>
+                <button id="notifyBtn" class="secondary-btn">Разрешить уведомления</button>
+              </div>
+              <p class="muted small">На iPhone уведомления работают после добавления сайта на экран «Домой».</p>
+            </div>
+
+            <div class="settings-panel" id="settings-panel-setsreps">
+              <h3>Подходы и повторы (отдельно)</h3>
+              <div id="setsRepsEditor" class="editor-block"></div>
+            </div>
+
+            <div class="settings-panel" id="settings-panel-editor">
+              <h3>Конструктор упражнений и тренировок</h3>
+              <div class="settings-row">
+                <label for="workoutSelect">Тренировка</label>
+                <select id="workoutSelect"></select>
+                <button id="addWorkoutBtn" class="secondary-btn">+ Новая тренировка</button>
+                <button id="deleteWorkoutBtn" class="danger-btn">Удалить тренировку</button>
+              </div>
+              <div id="workoutEditor" class="editor-block"></div>
+              <div class="settings-row">
+                <button id="addExerciseBtn" class="secondary-btn">+ Добавить упражнение</button>
+              </div>
+            </div>
+
+            <div class="settings-panel" id="settings-panel-data">
+              <h3>Данные</h3>
+              <div class="settings-row">
+                <button id="exportBtn" class="secondary-btn">Экспортировать данные (JSON)</button>
+                <label class="file-label">
+                  Импорт JSON
+                  <input type="file" id="importInput" accept=".json" />
+                </label>
+              </div>
             </div>
           </div>
         </section>

@@ -7,14 +7,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>Training Flow</title>
-    <link rel="manifest" href="./manifest.json" />
-    <link rel="stylesheet" href="./styles.css" />
+    <link rel="manifest" href="./manifest.json?v=5" />
+    <link rel="stylesheet" href="./styles.css?v=5" />
   </head>
   <body>
     <div class="app">
       <header class="header card">
         <div>
-          <p class="eyebrow">Домашние тренировки</p>
           <h1>Training Flow</h1>
         </div>
         <p id="todayLabel" class="today-label"></p>
@@ -28,6 +27,20 @@
 
       <main>
         <section class="tab-panel active" id="tab-today">
+          <div class="card timer-card">
+            <h2>Таймер отдыха</h2>
+            <p class="muted">Запускай отдых между подходами и упражнениями прямо перед глазами.</p>
+            <div id="restTimerDisplay" class="timer-display">01:15</div>
+            <div class="timer-start-actions">
+              <button id="startSetRestBtn" class="primary-btn">Старт: между подходами</button>
+              <button id="startExerciseRestBtn" class="secondary-btn">Старт: между упражнениями</button>
+            </div>
+            <div class="timer-main-actions">
+              <button id="pauseTimerBtn" class="secondary-btn">Пауза</button>
+              <button id="resetTimerBtn" class="secondary-btn">Сброс</button>
+            </div>
+          </div>
+
           <div class="card">
             <h2 id="todayWorkoutTitle"></h2>
             <p id="todayWorkoutSubtitle" class="muted"></p>
@@ -65,47 +78,6 @@
               </div>
             </div>
           </div>
-
-          <div class="card timer-card">
-            <h2>Таймер отдыха</h2>
-            <p class="muted">Запускай отдых между подходами и упражнениями, время можно менять под себя.</p>
-            <div id="restTimerDisplay" class="timer-display">01:15</div>
-            <div class="timer-start-actions">
-              <button id="startSetRestBtn" class="primary-btn">Старт: между подходами</button>
-              <button id="startExerciseRestBtn" class="secondary-btn">Старт: между упражнениями</button>
-            </div>
-            <div class="timer-main-actions">
-              <button id="pauseTimerBtn" class="secondary-btn">Пауза</button>
-              <button id="resetTimerBtn" class="secondary-btn">Сброс</button>
-            </div>
-            <div class="timer-settings-grid">
-              <label>Отдых между подходами (сек)
-                <input type="number" id="setRestSeconds" min="15" max="900" step="5" />
-              </label>
-              <label>Отдых между упражнениями (сек)
-                <input type="number" id="exerciseRestSeconds" min="15" max="900" step="5" />
-              </label>
-            </div>
-            <div class="timer-signal-toggles">
-              <label class="signal-toggle">
-                <input type="checkbox" id="soundSignalEnabled" />
-                <span>Звуковой сигнал</span>
-              </label>
-              <label class="signal-toggle">
-                <input type="checkbox" id="vibrationSignalEnabled" />
-                <span>Вибро сигнал</span>
-              </label>
-            </div>
-            <div class="timer-settings-grid timer-settings-grid-compact">
-              <label>Громкость звука (%)
-                <input type="number" id="soundVolume" min="0" max="100" step="5" />
-              </label>
-              <label>Длительность вибро (мс)
-                <input type="number" id="vibrationMs" min="50" max="1200" step="10" />
-              </label>
-            </div>
-            <button id="saveTimerSettingsBtn" class="secondary-btn">Сохранить настройки таймера</button>
-          </div>
         </section>
 
         <section class="tab-panel" id="tab-progress">
@@ -134,6 +106,7 @@
             <h2>Настройки и редактирование программы</h2>
             <div class="settings-tabs">
               <button class="settings-tab-btn active" data-settings-tab="schedule">Расписание</button>
+              <button class="settings-tab-btn" data-settings-tab="timer">Таймер</button>
               <button class="settings-tab-btn" data-settings-tab="setsreps">Подходы и повторы</button>
               <button class="settings-tab-btn" data-settings-tab="editor">Конструктор упражнений</button>
               <button class="settings-tab-btn" data-settings-tab="data">Данные</button>
@@ -154,6 +127,41 @@
                 <button id="notifyBtn" class="secondary-btn">Разрешить уведомления</button>
               </div>
               <p class="muted small">На iPhone уведомления работают после добавления сайта на экран «Домой».</p>
+            </div>
+
+            <div class="settings-panel" id="settings-panel-timer">
+              <h3>Настройки таймера</h3>
+              <div class="timer-settings-grid">
+                <div class="timer-duration-block">
+                  <p class="muted">Между подходами</p>
+                  <p id="setRestDisplay" class="timer-setting-display">01:15</p>
+                  <label>Минуты
+                    <input type="range" id="setRestMinutes" min="0" max="15" step="1" />
+                  </label>
+                  <label>Секунды
+                    <input type="range" id="setRestSecPart" min="0" max="55" step="5" />
+                  </label>
+                </div>
+                <div class="timer-duration-block">
+                  <p class="muted">Между упражнениями</p>
+                  <p id="exerciseRestDisplay" class="timer-setting-display">02:30</p>
+                  <label>Минуты
+                    <input type="range" id="exerciseRestMinutes" min="0" max="15" step="1" />
+                  </label>
+                  <label>Секунды
+                    <input type="range" id="exerciseRestSecPart" min="0" max="55" step="5" />
+                  </label>
+                </div>
+              </div>
+              <div class="timer-settings-grid timer-settings-grid-compact">
+                <label>Громкость сигнала: <span id="soundVolumeLabel">60%</span>
+                  <input type="range" id="soundVolume" min="0" max="100" step="5" />
+                </label>
+                <label>Вибрация: <span id="vibrationMsLabel">180 мс</span>
+                  <input type="range" id="vibrationMs" min="0" max="1200" step="10" />
+                </label>
+              </div>
+              <button id="saveTimerSettingsBtn" class="primary-btn">Сохранить настройки таймера</button>
             </div>
 
             <div class="settings-panel" id="settings-panel-setsreps">
@@ -191,6 +199,6 @@
     </div>
 
     <div id="toast" class="toast"></div>
-    <script src="./app.js"></script>
+    <script src="./app.js?v=5"></script>
   </body>
 </html>

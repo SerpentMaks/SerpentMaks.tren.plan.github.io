@@ -1,5 +1,12 @@
-const CACHE = "training-flow-cache-v3";
-const ASSETS = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.json", "./icon.svg"];
+const CACHE = "training-flow-cache-v4";
+const ASSETS = [
+  "./",
+  "./index.html",
+  "./styles.css?v=5",
+  "./app.js?v=5",
+  "./manifest.json?v=5",
+  "./icon.svg"
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

@@ -39,8 +39,6 @@ const DEFAULT_STATE = {
     reminderTime: "19:00",
     restSetSeconds: 75,
     restExerciseSeconds: 150,
-    soundSignalEnabled: true,
-    vibrationSignalEnabled: true,
     soundVolume: 60,
     vibrationMs: 180,
     schedule: {
@@ -220,12 +218,16 @@ const refs = {
   startExerciseRestBtn: document.getElementById("startExerciseRestBtn"),
   pauseTimerBtn: document.getElementById("pauseTimerBtn"),
   resetTimerBtn: document.getElementById("resetTimerBtn"),
-  setRestSeconds: document.getElementById("setRestSeconds"),
-  exerciseRestSeconds: document.getElementById("exerciseRestSeconds"),
-  soundSignalEnabled: document.getElementById("soundSignalEnabled"),
-  vibrationSignalEnabled: document.getElementById("vibrationSignalEnabled"),
+  setRestMinutes: document.getElementById("setRestMinutes"),
+  setRestSecPart: document.getElementById("setRestSecPart"),
+  setRestDisplay: document.getElementById("setRestDisplay"),
+  exerciseRestMinutes: document.getElementById("exerciseRestMinutes"),
+  exerciseRestSecPart: document.getElementById("exerciseRestSecPart"),
+  exerciseRestDisplay: document.getElementById("exerciseRestDisplay"),
   soundVolume: document.getElementById("soundVolume"),
+  soundVolumeLabel: document.getElementById("soundVolumeLabel"),
   vibrationMs: document.getElementById("vibrationMs"),
+  vibrationMsLabel: document.getElementById("vibrationMsLabel"),
   saveTimerSettingsBtn: document.getElementById("saveTimerSettingsBtn"),
   toast: document.getElementById("toast")
 };
@@ -235,7 +237,8 @@ init();
 function init() {
   const workoutsUpdated = improveWorkoutTemplates();
   const descriptionsUpdated = upgradeKnownExerciseDescriptions();
-  if (workoutsUpdated || descriptionsUpdated) persist();
+  const timerSettingsUpdated = normalizeLegacySignalSettings();
+  if (workoutsUpdated || descriptionsUpdated || timerSettingsUpdated) persist();
   setupTabs();
   setupSettingsTabs();
   wireEvents();
@@ -298,6 +301,27 @@ function improveWorkoutTemplates() {
     }
   }
 
+  return changed;
+}
+
+function normalizeLegacySignalSettings() {
+  let changed = false;
+  if (state.settings.soundSignalEnabled === false && state.settings.soundVolume === 60) {
+    state.settings.soundVolume = 0;
+    changed = true;
+  }
+  if (state.settings.vibrationSignalEnabled === false && state.settings.vibrationMs === 180) {
+    state.settings.vibrationMs = 0;
+    changed = true;
+  }
+  if ("soundSignalEnabled" in state.settings) {
+    delete state.settings.soundSignalEnabled;
+    changed = true;
+  }
+  if ("vibrationSignalEnabled" in state.settings) {
+    delete state.settings.vibrationSignalEnabled;
+    changed = true;
+  }
   return changed;
 }
 
@@ -364,7 +388,7 @@ function renderToday() {
     refs.todayExercises.innerHTML = "";
     refs.motivationText.textContent = "Сегодня восстановление. Легкая активность и сон помогут вернуться еще сильнее.";
     refs.completeWorkoutBtn.disabled = true;
-    drawDonut(refs.todayDonut, 0, "#4f8df8", "#1a294c");
+    drawDonut(refs.todayDonut, 0, "#fb923c", "#3b271a");
     refs.todayDonutLabel.textContent = "0%";
     return;
   }
@@ -400,7 +424,7 @@ function renderToday() {
   const percent = workout.exercises.length ? Math.round((doneCount / workout.exercises.length) * 100) : 0;
   refs.motivationText.textContent = getMotivationText(percent, doneCount, workout.exercises.length);
   refs.todayDonutLabel.textContent = `${percent}%`;
-  drawDonut(refs.todayDonut, percent, "#34d399", "#1a294c");
+  drawDonut(refs.todayDonut, percent, "#84cc16", "#3b271a");
 }
 
 function renderScheduleEditor() {
@@ -707,16 +731,12 @@ function wireEvents() {
     });
 
     refs.saveTimerSettingsBtn.addEventListener("click", () => {
-      const setSeconds = clampSeconds(Number(refs.setRestSeconds.value || state.settings.restSetSeconds));
-      const exerciseSeconds = clampSeconds(Number(refs.exerciseRestSeconds.value || state.settings.restExerciseSeconds));
-      const soundEnabled = refs.soundSignalEnabled.checked;
-      const vibrationEnabled = refs.vibrationSignalEnabled.checked;
+      const setSeconds = partsToSeconds(Number(refs.setRestMinutes.value), Number(refs.setRestSecPart.value), 15);
+      const exerciseSeconds = partsToSeconds(Number(refs.exerciseRestMinutes.value), Number(refs.exerciseRestSecPart.value), 15);
       const soundVolume = clampPercent(Number(refs.soundVolume.value || state.settings.soundVolume));
       const vibrationMs = clampMilliseconds(Number(refs.vibrationMs.value || state.settings.vibrationMs));
       state.settings.restSetSeconds = setSeconds;
       state.settings.restExerciseSeconds = exerciseSeconds;
-      state.settings.soundSignalEnabled = soundEnabled;
-      state.settings.vibrationSignalEnabled = vibrationEnabled;
       state.settings.soundVolume = soundVolume;
       state.settings.vibrationMs = vibrationMs;
       persist();
@@ -728,13 +748,11 @@ function wireEvents() {
       toast("Настройки таймера сохранены.");
     });
 
-    refs.soundSignalEnabled.addEventListener("change", () => {
-      refs.soundVolume.disabled = !refs.soundSignalEnabled.checked;
-    });
-
-    refs.vibrationSignalEnabled.addEventListener("change", () => {
-      refs.vibrationMs.disabled = !refs.vibrationSignalEnabled.checked;
-    });
+    [refs.setRestMinutes, refs.setRestSecPart, refs.exerciseRestMinutes, refs.exerciseRestSecPart, refs.soundVolume, refs.vibrationMs]
+      .filter(Boolean)
+      .forEach((input) => {
+        input.addEventListener("input", updateTimerSettingsPreviews);
+      });
   }
 }
 
@@ -750,24 +768,61 @@ function clampPercent(value) {
 
 function clampMilliseconds(value) {
   if (!Number.isFinite(value)) return 180;
-  return Math.max(50, Math.min(1200, Math.round(value)));
+  return Math.max(0, Math.min(1200, Math.round(value)));
 }
 
 function renderRestTimer() {
-  if (!refs.restTimerDisplay || !refs.setRestSeconds || !refs.exerciseRestSeconds) return;
-  refs.setRestSeconds.value = String(state.settings.restSetSeconds);
-  refs.exerciseRestSeconds.value = String(state.settings.restExerciseSeconds);
-  if (refs.soundSignalEnabled) refs.soundSignalEnabled.checked = Boolean(state.settings.soundSignalEnabled);
-  if (refs.vibrationSignalEnabled) refs.vibrationSignalEnabled.checked = Boolean(state.settings.vibrationSignalEnabled);
+  if (!refs.restTimerDisplay) return;
+  if (refs.setRestMinutes && refs.setRestSecPart && refs.exerciseRestMinutes && refs.exerciseRestSecPart) {
+    const setParts = secondsToParts(state.settings.restSetSeconds);
+    refs.setRestMinutes.value = String(setParts.minutes);
+    refs.setRestSecPart.value = String(setParts.seconds);
+
+    const exerciseParts = secondsToParts(state.settings.restExerciseSeconds);
+    refs.exerciseRestMinutes.value = String(exerciseParts.minutes);
+    refs.exerciseRestSecPart.value = String(exerciseParts.seconds);
+  }
   if (refs.soundVolume) refs.soundVolume.value = String(clampPercent(Number(state.settings.soundVolume)));
   if (refs.vibrationMs) refs.vibrationMs.value = String(clampMilliseconds(Number(state.settings.vibrationMs)));
-  if (refs.soundVolume && refs.soundSignalEnabled) refs.soundVolume.disabled = !state.settings.soundSignalEnabled;
-  if (refs.vibrationMs && refs.vibrationSignalEnabled) refs.vibrationMs.disabled = !state.settings.vibrationSignalEnabled;
+
+  updateTimerSettingsPreviews();
+
   if (restTimerDuration <= 0 || restTimerRemaining <= 0) {
     restTimerDuration = state.settings.restSetSeconds;
     restTimerRemaining = state.settings.restSetSeconds;
   }
   refs.restTimerDisplay.textContent = formatTimerSeconds(restTimerRemaining);
+}
+
+function secondsToParts(totalSeconds) {
+  const normalized = clampSeconds(totalSeconds);
+  const minutes = Math.floor(normalized / 60);
+  const seconds = normalized % 60;
+  return { minutes, seconds };
+}
+
+function partsToSeconds(minutes, seconds, fallback) {
+  const m = Math.max(0, Math.min(15, Number.isFinite(minutes) ? Math.floor(minutes) : 0));
+  const s = Math.max(0, Math.min(55, Number.isFinite(seconds) ? Math.floor(seconds / 5) * 5 : 0));
+  const combined = m * 60 + s;
+  return clampSeconds(combined || fallback);
+}
+
+function updateTimerSettingsPreviews() {
+  if (refs.setRestDisplay && refs.setRestMinutes && refs.setRestSecPart) {
+    refs.setRestDisplay.textContent = formatTimerSeconds(partsToSeconds(Number(refs.setRestMinutes.value), Number(refs.setRestSecPart.value), 15));
+  }
+  if (refs.exerciseRestDisplay && refs.exerciseRestMinutes && refs.exerciseRestSecPart) {
+    refs.exerciseRestDisplay.textContent = formatTimerSeconds(partsToSeconds(Number(refs.exerciseRestMinutes.value), Number(refs.exerciseRestSecPart.value), 15));
+  }
+  if (refs.soundVolumeLabel && refs.soundVolume) {
+    const value = clampPercent(Number(refs.soundVolume.value));
+    refs.soundVolumeLabel.textContent = value > 0 ? `${value}%` : "Выкл";
+  }
+  if (refs.vibrationMsLabel && refs.vibrationMs) {
+    const value = clampMilliseconds(Number(refs.vibrationMs.value));
+    refs.vibrationMsLabel.textContent = value > 0 ? `${value} мс` : "Выкл";
+  }
 }
 
 function formatTimerSeconds(totalSeconds) {
@@ -811,7 +866,7 @@ function getAudioContextInstance() {
 }
 
 function primeAudioContext() {
-  if (!state.settings.soundSignalEnabled) return;
+  if (clampPercent(Number(state.settings.soundVolume)) <= 0) return;
   const ctx = getAudioContextInstance();
   if (!ctx) return;
   if (ctx.state === "suspended") {
@@ -820,11 +875,12 @@ function primeAudioContext() {
 }
 
 function emitTimerSignal() {
-  if (state.settings.soundSignalEnabled) {
+  const volume = clampPercent(Number(state.settings.soundVolume));
+  const vibrationMs = clampMilliseconds(Number(state.settings.vibrationMs));
+  if (volume > 0) {
     playSoundSignal();
   }
-  if (state.settings.vibrationSignalEnabled && "vibrate" in navigator) {
-    const vibrationMs = clampMilliseconds(Number(state.settings.vibrationMs));
+  if (vibrationMs > 0 && "vibrate" in navigator) {
     navigator.vibrate([vibrationMs, 90, Math.max(70, Math.floor(vibrationMs * 0.8))]);
   }
 }
@@ -912,15 +968,15 @@ function drawWeeklyBar(doneDates) {
   const chartW = width - padding * 2;
   const chartH = height - padding * 2;
   const barW = chartW / values.length - 10;
-  ctx.fillStyle = "#7fb3ff";
+  ctx.fillStyle = "#fdba74";
   ctx.font = "12px sans-serif";
   values.forEach((v, i) => {
     const x = padding + i * (barW + 10);
     const h = ((chartH - 26) * v) / max;
     const y = height - padding - h;
-    ctx.fillStyle = "#4f8df8";
+    ctx.fillStyle = "#f97316";
     ctx.fillRect(x, y, barW, h);
-    ctx.fillStyle = "#dbeafe";
+    ctx.fillStyle = "#fff7ed";
     ctx.fillText(String(v), x + barW / 2 - 3, y - 6);
   });
 }
@@ -941,11 +997,11 @@ function drawMonthlyDoneDonut(doneDates) {
   const r = Math.min(width, height) / 2 - 16;
   ctx.clearRect(0, 0, width, height);
   ctx.lineWidth = 16;
-  ctx.strokeStyle = "#1a294c";
+  ctx.strokeStyle = "#3b271a";
   ctx.beginPath();
   ctx.arc(cx, cy, r, 0, Math.PI * 2);
   ctx.stroke();
-  ctx.strokeStyle = "#5d9eff";
+  ctx.strokeStyle = "#f97316";
   ctx.beginPath();
   ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * percent) / 100);
   ctx.stroke();
@@ -1052,6 +1108,7 @@ function importData(event) {
       if (!imported.settings || !imported.workouts || !imported.completion) throw new Error("invalid");
       state = imported;
       state.settings = { ...DEFAULT_STATE.settings, ...(state.settings || {}) };
+      normalizeLegacySignalSettings();
       improveWorkoutTemplates();
       upgradeKnownExerciseDescriptions();
       activeWorkoutKey = Object.keys(state.workouts)[0] || null;

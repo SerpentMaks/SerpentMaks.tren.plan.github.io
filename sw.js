@@ -1,4 +1,4 @@
-const CACHE = "training-flow-cache-v1";
+const CACHE = "training-flow-cache-v3";
 const ASSETS = ["./", "./index.html", "./styles.css", "./app.js", "./manifest.json", "./icon.svg"];
 
 self.addEventListener("install", (event) => {
@@ -27,18 +27,31 @@ self.addEventListener("activate", (event) => {
 });
 
 self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET") return;
+
+  const url = new URL(event.request.url);
+  const isSameOrigin = url.origin === self.location.origin;
+  const isNavigation = event.request.mode === "navigate";
+
+  if (!isSameOrigin) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+
+  // Network-first prevents stale UI on iPhone after updates.
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) {
-        return cached;
-      }
-      return fetch(event.request)
-        .then((response) => {
-          const copy = response.clone();
-          caches.open(CACHE).then((cache) => cache.put(event.request, copy));
-          return response;
+    fetch(event.request)
+      .then((response) => {
+        const copy = response.clone();
+        caches.open(CACHE).then((cache) => cache.put(event.request, copy));
+        return response;
+      })
+      .catch(() =>
+        caches.match(event.request).then((cached) => {
+          if (cached) return cached;
+          if (isNavigation) return caches.match("./index.html");
+          return caches.match("./");
         })
-        .catch(() => caches.match("./index.html"));
-    })
+      )
   );
 });

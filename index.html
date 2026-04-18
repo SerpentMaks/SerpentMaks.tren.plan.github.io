@@ -32,7 +32,8 @@
             <h2 id="todayWorkoutTitle"></h2>
             <p id="todayWorkoutSubtitle" class="muted"></p>
             <div id="todayExercises" class="exercise-list"></div>
-            <div class="settings-row">
+            <p id="motivationText" class="motivation-text"></p>
+            <div class="settings-row workout-actions">
               <button id="completeWorkoutBtn" class="primary-btn">Отметить тренировку выполненной</button>
               <button id="resetTodayBtn" class="secondary-btn">Сбросить отметки за сегодня</button>
             </div>
@@ -63,6 +64,47 @@
                 <p id="todayDonutLabel" class="donut-label">0%</p>
               </div>
             </div>
+          </div>
+
+          <div class="card timer-card">
+            <h2>Таймер отдыха</h2>
+            <p class="muted">Запускай отдых между подходами и упражнениями, время можно менять под себя.</p>
+            <div id="restTimerDisplay" class="timer-display">01:15</div>
+            <div class="timer-start-actions">
+              <button id="startSetRestBtn" class="primary-btn">Старт: между подходами</button>
+              <button id="startExerciseRestBtn" class="secondary-btn">Старт: между упражнениями</button>
+            </div>
+            <div class="timer-main-actions">
+              <button id="pauseTimerBtn" class="secondary-btn">Пауза</button>
+              <button id="resetTimerBtn" class="secondary-btn">Сброс</button>
+            </div>
+            <div class="timer-settings-grid">
+              <label>Отдых между подходами (сек)
+                <input type="number" id="setRestSeconds" min="15" max="900" step="5" />
+              </label>
+              <label>Отдых между упражнениями (сек)
+                <input type="number" id="exerciseRestSeconds" min="15" max="900" step="5" />
+              </label>
+            </div>
+            <div class="timer-signal-toggles">
+              <label class="signal-toggle">
+                <input type="checkbox" id="soundSignalEnabled" />
+                <span>Звуковой сигнал</span>
+              </label>
+              <label class="signal-toggle">
+                <input type="checkbox" id="vibrationSignalEnabled" />
+                <span>Вибро сигнал</span>
+              </label>
+            </div>
+            <div class="timer-settings-grid timer-settings-grid-compact">
+              <label>Громкость звука (%)
+                <input type="number" id="soundVolume" min="0" max="100" step="5" />
+              </label>
+              <label>Длительность вибро (мс)
+                <input type="number" id="vibrationMs" min="50" max="1200" step="10" />
+              </label>
+            </div>
+            <button id="saveTimerSettingsBtn" class="secondary-btn">Сохранить настройки таймера</button>
           </div>
         </section>
 

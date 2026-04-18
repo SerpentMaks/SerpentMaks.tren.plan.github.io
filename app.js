@@ -1,38 +1,5 @@
 const STORAGE_KEY = "training-flow-v2";
 const DAY_NAMES = ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"];
-const EXERCISE_DESCRIPTION_GUIDE = {
-  uA1:
-    "Поставь упоры на ширине плеч и продень резину за спину, концы зажми ладонями на упорах. Старт: тело прямое от головы до пяток, пресс и ягодицы напряжены. Опускайся до уровня, где грудь почти касается линии упоров, локти под углом около 45 градусов. Поднимайся без рывка, сохраняя ровный корпус и одинаковое давление в обе руки.",
-  uA2:
-    "Используй мини-турник 1 м: возьмись за перекладину, пятки на полу, тело как прямая планка. Сначала сведи лопатки, затем тяни грудь к перекладине. Вверху сделай короткую паузу 1 секунду, внизу полностью не расслабляй плечи. Если тяжело, согни колени; если легко, выпрями ноги дальше вперед.",
-  uA3:
-    "Наступи обеими ногами на середину резины, концы держи у плеч. Кисти нейтрально, локти немного вперед. Выжимай руки вверх до почти полного выпрямления, не прогибай поясницу. Опускай резину медленно 2 секунды обратно к плечам. Держи корпус стабильно и не смещай вес на одну сторону.",
-  lA1:
-    "Встань спиной к опоре (диван/стул), одну ногу поставь сзади на опору носком. Передняя стопа полностью на полу. Опускайся вертикально вниз до комфортной глубины, колено передней ноги направляй по линии носка. Поднимайся через пятку передней ноги. Для баланса можешь держаться одной рукой за стену.",
-  lA2:
-    "Наступи на резину и подтяни ее к передней части плеч (front style). Ноги чуть шире таза, носки слегка наружу. Опускайся в присед, сохраняя ровную спину и стабильные колени. Вставай мощно, но без прыжка. Если резина слишком тугая, уменьши амплитуду и темп сделай плавным.",
-  lA3:
-    "Стопы на резине, концы в руках. Колени мягко согнуты. Уводи таз назад, корпус наклоняется вперед с прямой спиной, пока не почувствуешь натяжение задней поверхности бедра. Поднимайся, сжимая ягодицы в верхней точке. Руки только держат резину, основная работа - бедра и ягодицы.",
-  uB1:
-    "Если полноценные подтягивания пока сложны, делай негативы: поднимись к верхней точке с опоры и медленно опускайся 3-5 секунд. Для облегчения используй резину как помощь под стопу или колено. На каждом повторе держи грудь раскрытой, плечи опущенными вниз, без раскачки корпусом.",
-  uB2:
-    "На упорах поставь руки на среднюю или узкую ширину, локти веди ближе к корпусу. Тело прямое, пресс напряжен. Опускайся плавно до комфортной глубины, затем выжимай вверх без провала в пояснице. Следи, чтобы плечи не зажимались к ушам и обе руки работали одинаково.",
-  uB3:
-    "Закрепи резину на уровне лица (дверь/опора). Потяни резину к верхней части лица: локти в стороны, предплечья почти вертикально. В конце движения сведи лопатки и немного разверни кисти наружу. Возвращайся медленно, не отпуская резину резко. Шея расслаблена, корпус не качается.",
-  lB1:
-    "Старт стоя ровно. Сделай шаг назад и опускайся до контроля: передняя стопа полностью в опоре, заднее колено идет вниз. Поднимайся через переднюю ногу, сохраняя равновесие. Длина шага такая, чтобы переднее колено не заваливалось внутрь. Спина ровная, взгляд вперед.",
-  lB2:
-    "Наступи на резину и заведи ее за верх спины. Колени чуть согнуты, таз назад, корпус наклоняется вперед как единый блок. Опускайся до комфортного натяжения и возвращайся, напрягая ягодицы и заднюю поверхность бедра. Не округляй поясницу и не задирай подбородок.",
-  lB3:
-    "Встань на четвереньки: ладони под плечами, колени под тазом. Одновременно вытяни вперед одну руку и назад противоположную ногу. Таз и поясница должны оставаться неподвижными, как будто на спине стоит стакан воды. Задержись на 1 секунду и вернись. Затем поменяй сторону."
-};
-const MOTIVATION_MESSAGES = [
-  "Разогрев уже сделан. Сегодняшняя версия тебя будет сильнее вчерашней.",
-  "Мощный день: спокойный темп, четкая техника, уверенный прогресс.",
-  "Каждый подход - вклад в форму и энергию. Ты в отличном ритме.",
-  "Осталось только начать первый подход, дальше пойдет легче.",
-  "Собранно, симметрично, красиво. Тренировка под контролем."
-];
 
 const DEFAULT_STATE = {
   settings: {
@@ -174,7 +141,6 @@ const DEFAULT_STATE = {
 
 let state = loadState();
 let activeWorkoutKey = Object.keys(state.workouts)[0] || "upperA";
-const expandedExercises = new Set();
 
 const refs = {
   todayLabel: document.getElementById("todayLabel"),
@@ -203,15 +169,12 @@ const refs = {
   weeklyBarChart: document.getElementById("weeklyBarChart"),
   monthlyDonut: document.getElementById("monthlyDonut"),
   heatmapGrid: document.getElementById("heatmapGrid"),
-  motivationText: document.getElementById("motivationText"),
   toast: document.getElementById("toast")
 };
 
 init();
 
 function init() {
-  const descriptionsUpdated = upgradeKnownExerciseDescriptions();
-  if (descriptionsUpdated) persist();
   setupTabs();
   setupSettingsTabs();
   wireEvents();
@@ -233,21 +196,6 @@ function loadState() {
   } catch (_error) {
     return structuredClone(DEFAULT_STATE);
   }
-}
-
-function upgradeKnownExerciseDescriptions() {
-  let changed = false;
-  Object.values(state.workouts).forEach((workout) => {
-    workout.exercises.forEach((exercise) => {
-      const nextDescription = EXERCISE_DESCRIPTION_GUIDE[exercise.id];
-      if (!nextDescription) return;
-      if (exercise.description !== nextDescription) {
-        exercise.description = nextDescription;
-        changed = true;
-      }
-    });
-  });
-  return changed;
 }
 
 function persist() {
@@ -287,7 +235,6 @@ function renderToday() {
     refs.todayWorkoutTitle.textContent = "Сегодня день отдыха";
     refs.todayWorkoutSubtitle.textContent = "В расписании на этот день выбрано восстановление.";
     refs.todayExercises.innerHTML = "";
-    refs.motivationText.textContent = "Сегодня восстановление. Легкая активность и сон помогут вернуться еще сильнее.";
     refs.completeWorkoutBtn.disabled = true;
     drawDonut(refs.todayDonut, 0, "#4f8df8", "#1a294c");
     refs.todayDonutLabel.textContent = "0%";
@@ -308,22 +255,19 @@ function renderToday() {
   refs.todayExercises.innerHTML = workout.exercises
     .map((ex) => {
       const checked = Boolean(dayCompletion.exercises[ex.id]);
-      const expanded = expandedExercises.has(ex.id);
-      return `<article class="exercise-item ${checked ? "done" : ""} ${expanded ? "expanded" : ""}" data-exercise-id="${ex.id}">
-        <div class="exercise-main">
-          <input class="exercise-check" type="checkbox" aria-label="Отметить упражнение ${escapeHtml(ex.name)}" ${checked ? "checked" : ""} />
+      return `<article class="exercise-item ${checked ? "done" : ""}" data-exercise-id="${ex.id}">
+        <input class="exercise-check" type="checkbox" ${checked ? "checked" : ""} />
+        <div>
           <p class="exercise-title">${escapeHtml(ex.name)}</p>
-          <p class="exercise-meta">${escapeHtml(`${ex.sets} x ${ex.reps}`)}</p>
-          <button class="exercise-toggle" type="button" aria-expanded="${expanded}" aria-label="Показать описание упражнения">▸</button>
+          <p class="exercise-desc">${escapeHtml(ex.description)}</p>
+          <p class="exercise-meta">${escapeHtml(`${ex.sets} подхода(ов) x ${ex.reps} повторов`)}</p>
         </div>
-        <p class="exercise-desc ${expanded ? "expanded" : ""}">${escapeHtml(ex.description)}</p>
       </article>`;
     })
     .join("");
 
   const doneCount = workout.exercises.filter((ex) => dayCompletion.exercises[ex.id]).length;
   const percent = workout.exercises.length ? Math.round((doneCount / workout.exercises.length) * 100) : 0;
-  refs.motivationText.textContent = getMotivationText(percent, doneCount, workout.exercises.length);
   refs.todayDonutLabel.textContent = `${percent}%`;
   drawDonut(refs.todayDonut, percent, "#34d399", "#1a294c");
 }
@@ -421,20 +365,6 @@ function renderStatsAndCharts() {
 }
 
 function wireEvents() {
-  refs.todayExercises.addEventListener("click", (event) => {
-    const toggle = event.target.closest(".exercise-toggle");
-    if (!toggle) return;
-    const card = toggle.closest(".exercise-item");
-    const desc = card?.querySelector(".exercise-desc");
-    const exId = card?.dataset.exerciseId;
-    if (!card || !desc || !exId) return;
-    const isOpen = card.classList.toggle("expanded");
-    desc.classList.toggle("expanded", isOpen);
-    toggle.setAttribute("aria-expanded", String(isOpen));
-    if (isOpen) expandedExercises.add(exId);
-    else expandedExercises.delete(exId);
-  });
-
   refs.todayExercises.addEventListener("change", (event) => {
     const checkbox = event.target.closest(".exercise-check");
     if (!checkbox) return;
@@ -449,7 +379,6 @@ function wireEvents() {
     persist();
     renderToday();
     renderStatsAndCharts();
-    if (checkbox.checked) toast("Отличный подход. Держи темп!");
   });
 
   refs.completeWorkoutBtn.addEventListener("click", () => {
@@ -463,7 +392,7 @@ function wireEvents() {
     state.completion[key].done = true;
     persist();
     renderAll();
-    toast("Огонь! Тренировка закрыта. Ты сегодня на высоте!");
+    toast("Отлично! Тренировка отмечена выполненной.");
   });
 
   refs.resetTodayBtn.addEventListener("click", () => {
@@ -795,14 +724,6 @@ function toast(message) {
   refs.toast.textContent = message;
   refs.toast.classList.add("show");
   setTimeout(() => refs.toast.classList.remove("show"), 2000);
-}
-
-function getMotivationText(percent, doneCount, totalCount) {
-  if (totalCount === 0) return "Добавь упражнения в эту тренировку и начни путь к серии сильных дней.";
-  if (percent >= 100) return "Легендарно! Все упражнения выполнены. Восстановись и забирай следующий день.";
-  if (percent >= 75) return `Финиш близко: ${doneCount} из ${totalCount} уже закрыто. Добей красиво!`;
-  if (percent >= 40) return `Хороший ритм: ${doneCount} из ${totalCount} выполнено. Продолжай в том же духе.`;
-  return MOTIVATION_MESSAGES[new Date().getDate() % MOTIVATION_MESSAGES.length];
 }
 
 function escapeHtml(value) {
